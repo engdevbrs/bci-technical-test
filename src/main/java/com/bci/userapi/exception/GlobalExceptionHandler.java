@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -78,6 +79,14 @@ public class GlobalExceptionHandler {
         String mensaje = errors.values().iterator().next();
         ErrorResponseDTO error = new ErrorResponseDTO(mensaje);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ErrorResponseDTO> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex) {
+        logger.warn("Tipo de contenido no soportado: {}", ex.getMessage());
+        String mensaje = "El tipo de contenido no es válido. Se requiere application/json";
+        ErrorResponseDTO error = new ErrorResponseDTO(mensaje);
+        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(error);
     }
 
     @ExceptionHandler(Exception.class)

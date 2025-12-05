@@ -2,6 +2,7 @@ package com.bci.userapi.service;
 
 import com.bci.userapi.dto.ChangePasswordRequestDTO;
 import com.bci.userapi.dto.ChangePasswordResponseDTO;
+import com.bci.userapi.dto.DeleteUserResponseDTO;
 import com.bci.userapi.dto.PhoneDTO;
 import com.bci.userapi.dto.UserDetailResponseDTO;
 import com.bci.userapi.dto.UserListResponseDTO;
@@ -188,11 +189,12 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional
-    public void deleteUser(UUID id) {
+    public DeleteUserResponseDTO deleteUser(UUID id) {
         try {
             User user = userRepository.findById(id)
                     .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado"));
             userRepository.delete(user);
+            return new DeleteUserResponseDTO("Usuario eliminado con éxito");
         } catch (UserNotFoundException ex) {
             throw ex;
         } catch (Exception ex) {

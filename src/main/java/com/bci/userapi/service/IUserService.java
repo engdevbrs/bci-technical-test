@@ -2,6 +2,7 @@ package com.bci.userapi.service;
 
 import com.bci.userapi.dto.ChangePasswordRequestDTO;
 import com.bci.userapi.dto.ChangePasswordResponseDTO;
+import com.bci.userapi.dto.DeleteUserResponseDTO;
 import com.bci.userapi.dto.UserDetailResponseDTO;
 import com.bci.userapi.dto.UserListResponseDTO;
 import com.bci.userapi.dto.UserRequestDTO;
@@ -18,6 +19,6 @@ public interface IUserService {
     List<UserListResponseDTO> getAllUsers();
     UserUpdateResponseDTO updateUser(UUID id, UserUpdateRequestDTO userRequest);
     ChangePasswordResponseDTO changePassword(UUID id, ChangePasswordRequestDTO request);
-    void deleteUser(UUID id);
+    DeleteUserResponseDTO deleteUser(UUID id);
 }
 

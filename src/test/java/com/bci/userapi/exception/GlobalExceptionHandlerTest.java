@@ -5,9 +5,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.ArrayList;
@@ -85,6 +87,16 @@ class GlobalExceptionHandlerTest {
         assertEquals("Usuario no encontrado", response.getBody().getMensaje());
     }
 
+
+    @Test
+    void testHandleHttpMediaTypeNotSupported() {
+        HttpMediaTypeNotSupportedException ex = new HttpMediaTypeNotSupportedException("Content type '' not supported");
+        ResponseEntity<ErrorResponseDTO> response = exceptionHandler.handleHttpMediaTypeNotSupported(ex);
+
+        assertEquals(HttpStatus.UNSUPPORTED_MEDIA_TYPE, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("El tipo de contenido no es válido. Se requiere application/json", response.getBody().getMensaje());
+    }
 
     @Test
     void testHandleGenericException() {

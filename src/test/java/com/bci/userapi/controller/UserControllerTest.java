@@ -2,6 +2,7 @@ package com.bci.userapi.controller;
 
 import com.bci.userapi.dto.ChangePasswordRequestDTO;
 import com.bci.userapi.dto.ChangePasswordResponseDTO;
+import com.bci.userapi.dto.DeleteUserResponseDTO;
 import com.bci.userapi.dto.PhoneDTO;
 import com.bci.userapi.dto.UserDetailResponseDTO;
 import com.bci.userapi.dto.UserListResponseDTO;
@@ -225,11 +226,12 @@ class UserControllerTest {
 
     @Test
     void testDeleteUser_Success() throws Exception {
-        doNothing().when(userService).deleteUser(userId);
+        DeleteUserResponseDTO response = new DeleteUserResponseDTO("Usuario eliminado con éxito");
+        when(userService.deleteUser(userId)).thenReturn(response);
 
-        mockMvc.perform(delete("/api/users/" + userId)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/api/users/" + userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mensaje").value("Usuario eliminado con éxito"));
 
         verify(userService, times(1)).deleteUser(userId);
     }

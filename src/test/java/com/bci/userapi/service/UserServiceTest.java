@@ -2,6 +2,7 @@ package com.bci.userapi.service;
 
 import com.bci.userapi.dto.ChangePasswordRequestDTO;
 import com.bci.userapi.dto.ChangePasswordResponseDTO;
+import com.bci.userapi.dto.DeleteUserResponseDTO;
 import com.bci.userapi.dto.PhoneDTO;
 import com.bci.userapi.dto.UserDetailResponseDTO;
 import com.bci.userapi.dto.UserListResponseDTO;
@@ -357,10 +358,10 @@ class UserServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         doNothing().when(userRepository).delete(user);
 
-        assertDoesNotThrow(() -> {
-            userService.deleteUser(userId);
-        });
+        DeleteUserResponseDTO result = userService.deleteUser(userId);
 
+        assertNotNull(result);
+        assertEquals("Usuario eliminado con éxito", result.getMensaje());
         verify(userRepository, times(1)).findById(userId);
         verify(userRepository, times(1)).delete(user);
     }
