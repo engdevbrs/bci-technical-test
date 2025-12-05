@@ -225,6 +225,30 @@ mvn test
 
 Cubre servicios, controladores y validadores.
 
+## Cobertura de Código
+
+Si quieres ver qué tan bien están cubiertos los tests, el proyecto tiene JaCoCo configurado. Es bastante simple de usar.
+
+Para generar el reporte, ejecuta:
+
+```bash
+mvn test jacoco:report
+```
+
+O si quieres empezar desde cero:
+
+```bash
+mvn clean test jacoco:report
+```
+
+Una vez que termine, el reporte HTML queda en `target/site/jacoco/index.html`. Abre ese archivo en el navegador y verás un resumen con la cobertura por paquete, por clase, y hasta puedes ver línea por línea qué está cubierto (verde) y qué no (rojo).
+
+Si ya ejecutaste los tests antes y solo quieres regenerar el reporte, puedes usar:
+
+```bash
+mvn jacoco:report
+```
+
 ## Ejemplos de Uso
 
 ### Con Swagger (más fácil)

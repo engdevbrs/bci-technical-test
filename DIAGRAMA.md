@@ -21,8 +21,12 @@
 │                      Controller Layer                           │
 │  ┌──────────────────────────────────────────────────────────┐  │
 │  │  UserController                                          │  │
-│  │  - POST /api/users                                       │  │
-│  │  - Validación de entrada (@Valid)                        │  │
+│  │  - POST /api/users (crear)                               │  │
+│  │  - GET /api/users/{id} (obtener)                         │  │
+│  │  - GET /api/users (listar todos)                         │  │
+│  │  - PUT /api/users/{id} (actualizar)                      │  │
+│  │  - PUT /api/users/{id}/password (cambiar password)       │  │
+│  │  - DELETE /api/users/{id} (eliminar)                     │  │
 │  └──────────────────────────────────────────────────────────┘  │
 └────────────────────────────┬────────────────────────────────────┘
                              │
@@ -59,6 +63,12 @@
 │  │              │  │tor           │  │onValidator   │         │
 │  │- Valida regex│  │- Valida regex│  │- Valida BD   │         │
 │  └──────────────┘  └──────────────┘  └──────────────┘         │
+│                                                                 │
+│  ┌──────────────────────┐  ┌──────────────────────┐           │
+│  │UserUpdateRequestVali │  │ChangePasswordRequest │           │
+│  │dator                 │  │Validator             │           │
+│  │- Valida actualización│  │- Valida cambio pass  │           │
+│  └──────────────────────┘  └──────────────────────┘           │
 └────────────────────────────┬────────────────────────────────────┘
                              │
                              │
@@ -107,7 +117,9 @@
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## Flujo de Registro de Usuario
+## Flujos Principales
+
+### Flujo de Registro de Usuario (POST /api/users)
 
 ```
 1. Cliente → POST /api/users
@@ -120,33 +132,65 @@
    ├─► UserService.createUser()
    │   │
    │   ├─► UserRequestValidator.validate()
-   │   │   │
    │   │   ├─► EmailValidator.validate()
-   │   │   │   └─► Valida regex de email
-   │   │   │
    │   │   ├─► PasswordValidator.validate()
-   │   │   │   └─► Valida regex de password
-   │   │   │
    │   │   └─► EmailDuplicationValidator.validate()
-   │   │       └─► UserRepository.findByEmail()
    │   │
    │   ├─► JWTService.generateToken()
-   │   │   └─► Genera token JWT
-   │   │
    │   ├─► UserFactory.createUser()
-   │   │   ├─► UserMapper.toEntity()
-   │   │   ├─► Encripta password (BCrypt)
-   │   │   ├─► Genera UUID
-   │   │   ├─► Establece fechas (created, modified, lastLogin)
-   │   │   └─► Crea entidades Phone
-   │   │
    │   └─► UserRepository.save()
-   │       └─► Persiste User y Phones
    │
    ├─► UserMapper.toResponseDTO()
-   │   └─► Convierte Entity a DTO
-   │
    └─► Retorna UserResponseDTO (201 Created)
+```
+
+### Flujo de Actualización (PUT /api/users/{id})
+
+```
+1. Cliente → PUT /api/users/{id}
+   │
+   ├─► UserController.updateUser()
+   │
+   ├─► UserService.updateUser()
+   │   ├─► UserRepository.findById() → UserNotFoundException si no existe
+   │   ├─► UserUpdateRequestValidator.validate()
+   │   ├─► EmailDuplicationValidator.validate() (si email cambió)
+   │   ├─► Actualiza campos del User
+   │   └─► UserRepository.save()
+   │
+   └─► Retorna UserUpdateResponseDTO (200 OK)
+```
+
+### Flujo de Cambio de Contraseña (PUT /api/users/{id}/password)
+
+```
+1. Cliente → PUT /api/users/{id}/password
+   │
+   ├─► UserController.changePassword()
+   │
+   ├─► UserService.changePassword()
+   │   ├─► UserRepository.findById() → UserNotFoundException si no existe
+   │   ├─► ChangePasswordRequestValidator.validate()
+   │   │   ├─► PasswordValidator.validate()
+   │   │   └─► Valida que password == confirmPassword
+   │   ├─► Encripta nueva password (BCrypt)
+   │   └─► UserRepository.save()
+   │
+   └─► Retorna ChangePasswordResponseDTO (200 OK)
+```
+
+### Flujo de Eliminación (DELETE /api/users/{id})
+
+```
+1. Cliente → DELETE /api/users/{id}
+   │
+   ├─► UserController.deleteUser()
+   │
+   ├─► UserService.deleteUser()
+   │   ├─► UserRepository.findById() → UserNotFoundException si no existe
+   │   └─► UserRepository.delete()
+   │
+   └─► Retorna 204 No Content
 ```
 
 ## Manejo de Excepciones
@@ -169,6 +213,16 @@
 │  ┌──────────────────────────────────────────────────────┐  │
 │  │  InvalidPasswordFormatException                       │  │
 │  │  └─► 400 Bad Request                                  │  │
+│  └──────────────────────────────────────────────────────┘  │
+│                                                             │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  PasswordMismatchException                            │  │
+│  │  └─► 400 Bad Request                                  │  │
+│  └──────────────────────────────────────────────────────┘  │
+│                                                             │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  UserNotFoundException                                │  │
+│  │  └─► 404 Not Found                                    │  │
 │  └──────────────────────────────────────────────────────┘  │
 │                                                             │
 │  ┌──────────────────────────────────────────────────────┐  │
@@ -225,7 +279,9 @@
 - **IJWTService/JWTService**: Maneja generación y validación de tokens JWT
 
 ### Validator
-- **UserRequestValidator**: Coordina todas las validaciones
+- **UserRequestValidator**: Coordina validaciones para creación
+- **UserUpdateRequestValidator**: Coordina validaciones para actualización
+- **ChangePasswordRequestValidator**: Valida cambio de contraseña
 - **EmailValidator**: Valida formato de email
 - **PasswordValidator**: Valida formato de password
 - **EmailDuplicationValidator**: Valida que email no exista
@@ -241,7 +297,12 @@
 
 ### Exception
 - **GlobalExceptionHandler**: Manejo centralizado de excepciones
-- Excepciones de dominio: EmailAlreadyExistsException, InvalidEmailFormatException, InvalidPasswordFormatException
+- Excepciones de dominio: 
+  - EmailAlreadyExistsException
+  - InvalidEmailFormatException
+  - InvalidPasswordFormatException
+  - PasswordMismatchException
+  - UserNotFoundException
 
 ### Config
 - **SecurityConfig**: Configuración de Spring Security

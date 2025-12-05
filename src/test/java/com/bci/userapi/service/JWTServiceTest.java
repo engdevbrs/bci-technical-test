@@ -13,7 +13,7 @@ class JWTServiceTest {
     @BeforeEach
     void setUp() {
         jwtService = new JWTService(
-                "mySecretKeyForJWTTokenGenerationThatShouldBeAtLeast256BitsLong",
+                "mySecretKeyForJWTTokenGenerationThatShouldBeAtLeast512BitsLongForHS512AlgorithmSecurity",
                 86400000L
         );
     }

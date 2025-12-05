@@ -17,7 +17,7 @@ class PasswordValidatorTest {
 
     @Test
     void testValidate_ValidPassword() {
-        assertDoesNotThrow(() -> passwordValidator.validate("hunter2"));
+        assertDoesNotThrow(() -> passwordValidator.validate("hunter22"));
         assertDoesNotThrow(() -> passwordValidator.validate("password123"));
         assertDoesNotThrow(() -> passwordValidator.validate("ABCD1234"));
     }
