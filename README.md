@@ -243,6 +243,10 @@ mvn clean test jacoco:report
 
 Una vez que termine, el reporte HTML queda en `target/site/jacoco/index.html`. Abre ese archivo en el navegador y verás un resumen con la cobertura por paquete, por clase, y hasta puedes ver línea por línea qué está cubierto (verde) y qué no (rojo).
 
+Cobertura alcanzada:
+
+<img width="1681" height="480" alt="Screenshot_8" src="https://github.com/user-attachments/assets/6f476f77-7208-43bc-958a-78ed4e54f491" />
+
 Si ya ejecutaste los tests antes y solo quieres regenerar el reporte, puedes usar:
 
 ```bash
